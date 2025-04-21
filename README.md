@@ -1,5 +1,5 @@
 ### EX5 Information Retrieval Using Boolean Model in Python
-### DATE: 
+
 ### AIM: To implement Information Retrieval Using Boolean Model in Python.
 ### Description:
 <div align = "justify">
@@ -63,47 +63,36 @@ class BooleanRetrieval:
         print(list(self.index.keys()))
 
     def boolean_search(self, query):
-        query_terms = query.lower().split()
-        results = set()  # Initialize as empty set to accumulate results
-        current_set = None  # Current set to handle 'or' logic
+        tokens = query.upper().split()
+        result = set()
 
         i = 0
-        while i < len(query_terms):
-            term = query_terms[i]
+        while i < len(tokens):
+            token = tokens[i]
 
-            if term == 'or':
-                if current_set is not None:
-                    results.update(current_set)
-                current_set = None  # Reset current set for the next term
-            elif term == 'and':
-                i += 1
-                continue  # 'and' is implicit, move to next term
-            elif term == 'not':
-                i += 1
-                if i < len(query_terms):
-                    not_term = query_terms[i]
-                    if not_term in self.index:
-                        not_docs = self.index[not_term]
-                        if current_set is None:
-                            current_set = set(range(1, len(documents) + 1))  # All doc IDs
-                        current_set.difference_update(not_docs)
-            else:
-                if term in self.index:
-                    term_docs = self.index[term]
-                    if current_set is None:
-                        current_set = term_docs.copy()
-                    else:
-                        current_set.intersection_update(term_docs)
+            if token not in ["AND", "OR", "NOT"]:
+                current_set = self.index.get(token.lower(), set())
+
+                if i == 0:
+                    result = current_set
                 else:
-                    current_set = set()  # If the term doesn't exist, it results in an empty set
+                    operator = tokens[i - 1]
+                    if operator == "AND":
+                        result = result & current_set
+                    elif operator == "OR":
+                        result = result | current_set
+                i += 1
 
-            i += 1
+            elif token == "NOT":
+                next_token = tokens[i + 1]
+                not_set = self.index.get(next_token.lower(), set())
+                result = result - not_set
+                i += 2
+            else:
+                i += 1
 
-        # Update results with the last processed set
-        if current_set is not None:
-            results.update(current_set)
+        return result
 
-        return sorted(results)
 
 if __name__ == "__main__":
     indexer = BooleanRetrieval()
@@ -121,14 +110,17 @@ if __name__ == "__main__":
     indexer.print_documents_matrix_table()
     indexer.print_all_terms()
 
-    query = input("Enter your boolean query: ")
+    query = input("Enter your boolean query (use AND, OR, NOT): ")
     results = indexer.boolean_search(query)
+
     if results:
         print(f"Results for '{query}': {results}")
     else:
         print("No results found for the query.")
-```
 
+
+   
+```
     
         
 
@@ -136,7 +128,14 @@ if __name__ == "__main__":
 
 
 ### Output:
-![image](https://github.com/user-attachments/assets/7f21078e-170b-47c2-91a2-357e3c231204)
+### AND Operation:
+![435599661-da6b388f-1acd-450d-bd41-ee31a165904c](https://github.com/user-attachments/assets/dc1b33e1-98da-4591-8116-8c178ae72c60)
+
+### OR Operation
+![435601141-990c8b2c-98af-4d88-b80f-d9a69a5d16ed](https://github.com/user-attachments/assets/999bbe17-1c86-4085-b5f8-663c1af05ca7)
+###  NOT Opeartion
+![435601401-ee7b4f6d-02a1-43d6-9e0a-d939dc072059](https://github.com/user-attachments/assets/107f8967-2f92-4b53-a03e-5e05e34f549a)
 
 ### Result:
 Thus the implementation of Information Retrieval Using Boolean Model in Python is successfully completed.
+
